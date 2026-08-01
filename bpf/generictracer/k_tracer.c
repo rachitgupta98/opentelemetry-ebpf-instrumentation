@@ -740,6 +740,10 @@ int BPF_KPROBE(obi_kprobe_tcp_close, struct sock *sk, long timeout) {
         terminate_http_request_if_needed(&info);
         finish_ongoing_tcp_req(&info);
         bpf_map_delete_elem(&connection_tracker, &info.conn);
+        // Without this, a later connection that reuses the same (pid, ports) tuple
+        // inherits this connection's id/flags and, on the userspace side, its
+        // partially-built HPACK dynamic table (see getOrInitH2Conn).
+        bpf_map_delete_elem(&ongoing_http2_connections, &info);
     }
 
     bpf_map_delete_elem(&active_send_args, &id);
