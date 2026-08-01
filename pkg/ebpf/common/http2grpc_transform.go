@@ -8,6 +8,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"log/slog"
 	"regexp"
 	"strconv"
 	"strings"
@@ -237,7 +238,13 @@ func readMetaFrame(parseContext *EBPFParseContext, connID uint64, fr *http2.Fram
 		return method, path, contentType, ok, isResponse
 	}
 
+	// TEMPORARY diagnostics: capture every field this block decodes so a
+	// suspicious :path resolution can be correlated against what else was
+	// in the same header block (e.g. a real "traceparent" field).
+	var allFields []bhpack.HeaderField
+
 	h2c.hdec.SetEmitFunc(func(hf bhpack.HeaderField) {
+		allFields = append(allFields, hf)
 		switch hf.Name {
 		case ":method":
 			method = hf.Value
@@ -259,6 +266,13 @@ func readMetaFrame(parseContext *EBPFParseContext, connID uint64, fr *http2.Fram
 	// Lose reference to MetaHeadersFrame:
 	defer h2c.hdec.SetEmitFunc(func(_ bhpack.HeaderField) {})
 	defer h2c.hdec.Close()
+	defer func() {
+		if path != "" && !strings.HasPrefix(path, "/") {
+			slog.Warn("suspicious HTTP2 :path resolution", "conn_id", connID,
+				"path", path, "method", method, "content_type", contentType,
+				"fields", allFields)
+		}
+	}()
 
 	frag := hf.HeaderBlockFragment()
 
