@@ -50,7 +50,7 @@ enum {
     // 33 tail-call budget: 7 hops per frame at worst, 5 plus 2 for its retry, 2 + 4*7 = 30
     k_h2_max_frames_per_packet = 4,
     k_h2_max_tp_retries = 2,
-    k_h2_max_hpack_scan = 1024,
+    k_h2_max_hpack_scan = 512,
     k_h2_default_max_frame_size = 16384,
 
     // --- W3C traceparent value layout: "00-<trace_id>-<span_id>-01" ---

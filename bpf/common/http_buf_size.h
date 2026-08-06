@@ -3,7 +3,7 @@
 
 #pragma once
 
-enum { k_kprobes_http2_buf_size = 1024 };
+enum { k_kprobes_http2_buf_size = 512 };
 enum { k_kprobes_http2_ret_buf_size = 64 };
 
 // should be enough for most URLs, we may need to extend it if not.
