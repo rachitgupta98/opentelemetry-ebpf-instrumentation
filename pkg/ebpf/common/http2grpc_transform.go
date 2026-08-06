@@ -39,7 +39,7 @@ const (
 const initialHeaderTableSize = 4096
 
 var (
-	validPath        = regexp.MustCompile(`^[A-Za-z0-9\-/._~]+$`)
+	validPath        = regexp.MustCompile(`^/[A-Za-z0-9\-/._~]*$`)
 	validContentType = regexp.MustCompile(`^[A-Za-z\-/\+]+$`)
 )
 
